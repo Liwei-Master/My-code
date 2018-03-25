@@ -2,6 +2,7 @@
 # https://www.crummy.com/software/BeautifulSoup/bs4/doc.zh/#keyword
 # r.text is the content of the response in unicode, and r.content is the content of the response in bytes.
 # http://selenium-python.readthedocs.io/index.html
+
 import requests
 from bs4 import BeautifulSoup, re
 from selenium import webdriver  #导入Selenium的webdriver
@@ -11,10 +12,10 @@ import time
 
 
 class BeautifulPicture():
-    def __init__(self):  #类的初始化操做
+    def __init__(self):
         self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:59.0) Gecko/20100101 Firefox/59.0'}  #给请求指定一个请求头来模拟chrome浏览器
-        self.web_url = 'https://wuso.me/forum-jsav-1.html' # 要访问的网页地址
-        self.folder_path = '/Users/LiweiHE/acquisition'  # 设置图片要存放的文件目录
+        self.web_url = 'https://wuso.me/forum-jsav-1.html' # target website
+        self.folder_path = '/Users/LiweiHE/acquisition'  # where to store
         self.driver = None
 
 
@@ -25,9 +26,9 @@ class BeautifulPicture():
 
     def create_folder(self,path):
         path = path.strip()
-        is_valide = os.path.exists(path)
-        if not is_valide:
-            print('创建名字叫做', path, '的文件夹')
+        is_valid = os.path.exists(path)
+        if not is_valid:
+            print('Create a file called ', path)
             os.makedirs(path)
         else:
             print('This folder is already existed.')
@@ -45,11 +46,11 @@ class BeautifulPicture():
         # https://docs.python.org/3/library/functions.html?highlight=open#open
         f = open(name, 'w')
         f.write(url)
-        print(name, 'url保存成功！')
+        print(name, 'url received！')
         f.close()
 
     def save_img(self, url, name):  ##保存图片
-        print('开始保存图片...')
+        print('Start to pull the pic...')
         img = self.requests(url)
         time.sleep(5)
         file_name = name + '.jpg'
@@ -57,20 +58,20 @@ class BeautifulPicture():
 
         f = open(file_name, 'ab')
         f.write(img.content)
-        print(file_name, '图片保存成功！')
+        print(file_name, 'pulled！')
         f.close()
 
     def get_url(self):
-        print('开始网页get请求')
+        print('start the GET ')
         self.driver.get(self.web_url)  # 请求网页地址
-        print('开始获取所有a标签')
+        print('Start to find all <a>')
         all_a = BeautifulSoup(self.driver.page_source, 'lxml').find_all('a', class_='z', title=re.compile("巨乳"))
 
         # print('开始创建文件夹')
         # self.create_folder(self.folder_path)
         # print('开始切换文件夹')
         # os.chdir(self.folder_path)  # 切换路径至上面创建的文件夹
-        print("a标签的数量是：", len(all_a))  # 这里添加一个查询图片标签的数量，来检查我们下拉操作是否有误
+        print("The number of <a> is：", len(all_a))  # 这里添加一个查询图片标签的数量，来检查我们下拉操作是否有误
 
         old_urls = self.get_files(self.folder_path)
 
@@ -85,14 +86,14 @@ class BeautifulPicture():
 
 
     def get_pic_request(self):
-        print('开始网页get请求')
+        print('Start the GET')
         r = self.requests(self.web_url)
-        print('开始获取所有img标签')
+        print('Start to find all the <img>')
         text = BeautifulSoup(r.text, 'lxml')
-        all_images = text.find_all('img', alt=re.compile("巨乳"))  # 获取网页中的alt_为""的所有img标签
-        print('开始创建文件夹')
+        all_images = text.find_all('img', alt=re.compile("大胸"))  # 获取网页中的alt_为""的所有img标签
+        print('create file')
         self.create_folder(self.folder_path)
-        print('开始切换文件夹')
+        print('change the current file to it')
         os.chdir(self.folder_path)  # 切换路径至上面创建的文件夹
         i = 0
         all_pics = self.get_files(self.folder_path)
@@ -171,15 +172,19 @@ spider = BeautifulPicture()
 
 spider.init_broswer()
 
-print('开始创建文件夹')
+print('Creating file')
 spider.create_folder(spider.folder_path)
-print('开始切换文件夹')
+print('Change the current file to it')
 os.chdir(spider.folder_path)  # 切换路径至上面创建的文件夹
 
+# go through 20 pages
 for i in range(0, 20):
-    print('开始第 ', i + 1, ' 页')
+    print('Moving to ', i + 1, ' page')
     spider.get_pic_Selenium()
     spider.next_page()
-    print('第 ',i + 1, ' 页结束')
+    print('page ', i + 1, ' finished')
 
 spider.close()
+
+# Note: code here is used to pick up urls and pictures which related to topics I'm interested in
+# the target website is an Adult website based in Taiwan: https://wuso.me/forum-jsav-1.html
