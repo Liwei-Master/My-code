@@ -3,6 +3,9 @@
 # r.text is the content of the response in unicode, and r.content is the content of the response in bytes.
 # http://selenium-python.readthedocs.io/index.html
 
+# Purpose: code here is used to pick up urls and pictures which related to topics I'm interested in
+# the target website is an Adult website based in Taiwan: https://wuso.me/forum-jsav-1.html
+
 import requests
 from bs4 import BeautifulSoup, re
 from selenium import webdriver  #导入Selenium的webdriver
