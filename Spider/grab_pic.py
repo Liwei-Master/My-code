@@ -1,22 +1,23 @@
-# BeautifulSoup模块来从HTML文本中提取我们想要的数据
+# BeautifulSoup as a tool to grab the useful info from website
 # https://www.crummy.com/software/BeautifulSoup/bs4/doc.zh/#keyword
 # r.text is the content of the response in unicode, and r.content is the content of the response in bytes.
 # http://selenium-python.readthedocs.io/index.html
 
 # Purpose: code here is used to pick up urls and pictures which related to topics I'm interested in
-# the target website is an Adult website based in Taiwan: https://wuso.me/forum-jsav-1.html
+# the target website is an website based in Taiwan: https://wuso.me/forum-jsav-1.html
 
 import requests
 from bs4 import BeautifulSoup, re
-from selenium import webdriver  #导入Selenium的webdriver
-from selenium.webdriver.common.keys import Keys  #导入Keys
+from selenium import webdriver  #import the webdriver from Selenium
+from selenium.webdriver.common.keys import Keys  #import Keys
 import os
 import time
 
 
 class BeautifulPicture():
     def __init__(self):
-        self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:59.0) Gecko/20100101 Firefox/59.0'}  #给请求指定一个请求头来模拟chrome浏览器
+        #mimic the chrome by providing a head into request 
+        self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:59.0) Gecko/20100101 Firefox/59.0'}  
         self.web_url = 'https://wuso.me/forum-jsav-1.html' # target website
         self.folder_path = '/Users/LiweiHE/acquisition'  # where to store
         self.driver = None
@@ -44,7 +45,7 @@ class BeautifulPicture():
         self.web_url = start + str(page) + end
 
 
-    def save(self, url, name):  ##保存url
+    def save(self, url, name):  ##store url
         print('start to store url')
         # https://docs.python.org/3/library/functions.html?highlight=open#open
         f = open(name, 'w')
@@ -52,13 +53,13 @@ class BeautifulPicture():
         print(name, 'url received！')
         f.close()
 
-    def save_img(self, url, name):  ##保存图片
+    def save_img(self, url, name):  
         print('Start to pull the pic...')
         img = self.requests(url)
+        # wait for the 
         time.sleep(5)
         file_name = name + '.jpg'
-        # https://docs.python.org/3/library/functions.html?highlight=open#open
-
+        # more info about 'open' in https://docs.python.org/3/library/functions.html?highlight=open#open
         f = open(file_name, 'ab')
         f.write(img.content)
         print(file_name, 'pulled！')
@@ -66,15 +67,16 @@ class BeautifulPicture():
 
     def get_url(self):
         print('start the GET ')
-        self.driver.get(self.web_url)  # 请求网页地址
+        self.driver.get(self.web_url)  # send request
         print('Start to find all <a>')
-        all_a = BeautifulSoup(self.driver.page_source, 'lxml').find_all('a', class_='z', title=re.compile("巨乳"))
+        # keywords is a variable 
+        all_a = BeautifulSoup(self.driver.page_source, 'lxml').find_all('a', class_='z', title=re.compile("keywords"))
 
-        # print('开始创建文件夹')
+        # print('start to create folder')
         # self.create_folder(self.folder_path)
-        # print('开始切换文件夹')
-        # os.chdir(self.folder_path)  # 切换路径至上面创建的文件夹
-        print("The number of <a> is：", len(all_a))  # 这里添加一个查询图片标签的数量，来检查我们下拉操作是否有误
+        # print('start to change path')
+        # os.chdir(self.folder_path)  # change the path to the target.
+        print("The number of <a> is：", len(all_a))  # return the number of <a>
 
         old_urls = self.get_files(self.folder_path)
 
@@ -93,11 +95,11 @@ class BeautifulPicture():
         r = self.requests(self.web_url)
         print('Start to find all the <img>')
         text = BeautifulSoup(r.text, 'lxml')
-        all_images = text.find_all('img', alt=re.compile("大胸"))  # 获取网页中的alt_为""的所有img标签
+        all_images = text.find_all('img', alt=re.compile("keywords"))  # find all the img with a "keywords" 
         print('create file')
         self.create_folder(self.folder_path)
         print('change the current file to it')
-        os.chdir(self.folder_path)  # 切换路径至上面创建的文件夹
+        os.chdir(self.folder_path)  # change the path to the target.
         i = 0
         all_pics = self.get_files(self.folder_path)
         for img in all_images:
@@ -115,34 +117,34 @@ class BeautifulPicture():
 
     def scroll_down(self, driver, times):
         for i in range(times):
-            print("开始执行第", str(i + 1), "次下拉操作")
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")  #执行JavaScript实现网页下拉倒底部
-            print("第", str(i + 1), "次下拉操作执行完毕")
-            print("第", str(i + 1), "次等待网页加载......")
-            time.sleep(20)  # 等待20秒（时间可以根据自己的网速而定），页面加载出来再执行下拉操作
+            print("start ", str(i + 1), " times' scroll-down")
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")  #execute the JavaScript to scroll down
+            print(str(i + 1), " times' scroll-down finished")
+            print("waiting for the ", str(i + 1), "times' page loading......")
+            time.sleep(20)  # wait for 20ms, so that page loading can finish in time.
 
     def get_files(self, path):
         pic_names = os.listdir(path)
         return pic_names
 
     def init_broswer(self):
-        print('开始网页get请求')
+        print('send get request')
         chromedriver = "/Users/LiweiHE/anaconda3/chromedriver"
         os.environ["webdriver.chrome.driver"] = chromedriver
-        self.driver = webdriver.Chrome(chromedriver)  # 指定使用的浏览器，初始化webdriver
+        self.driver = webdriver.Chrome(chromedriver)  # initialise webdriver
 
     def close(self):
-        self.driver.close()  #关闭webdriver
+        self.driver.close()  #close webdriver
 
     def get_pic_Selenium(self):
-        self.driver.get(self.web_url)  # 请求网页地址
+        self.driver.get(self.web_url)  #send the url
         # if there is iframe in the page
         # driver.switch_to.frame("g_iframe")
         # self.scroll_down(driver=driver, times=1)
-        print('开始获取所有a标签')
+        print('grabing all <a>s')
         # css labels need '_' to identify
-        all_a = BeautifulSoup(self.driver.page_source, 'lxml').find_all('a', class_='z', title=re.compile('巨乳'))
-        print("a标签的数量是：", len(all_a))  #这里查询标签的数量
+        all_a = BeautifulSoup(self.driver.page_source, 'lxml').find_all('a', class_='z', title=re.compile('keywords'))
+        print("the number of <a> is ：", len(all_a))  #check the number of <a>
 
         pic_names = self.get_files(self.folder_path)
         i = 1
@@ -150,7 +152,7 @@ class BeautifulPicture():
             img = a.find('img')
             url = a['href']
             img_url = 'https://wuso.me/' + img['src']
-            print('a标签的src内容是：', img_url)
+            print('the content of <src> in <a>：', img_url)
             #first_pos = img_str.index('"') + 1  # 获取第一个双引号的位置，然后加1就是url的起始位置
             #second_pos = img_str.index('"', first_pos)  # 获取第二个双引号的位置
             #img_url = img_str[first_pos: second_pos]  # 使用Python的切片功能截取双引号之间的内容
@@ -161,13 +163,13 @@ class BeautifulPicture():
             # img_name = img_url[name_start_pos: name_end_pos]
             img_name = str(i) + "."+ a['title']
             i +=1
-            img_name = img_name.replace('/', '')  # 把图片名字中的斜杠都去掉
+            img_name = img_name.replace('/', '')  # delete all the '/'
 
             if img_name not in pic_names:
-                self.save_img(img_url, img_name)  # 调用save_img方法来保存图片
+                self.save_img(img_url, img_name)  # call 'save_img' to solve imgs
                 self.save(url, img_name)
             else:
-                print("该图片已经存在：", img_name, "，不再重新下载。")
+                print("this image is already existed：", img_name, "，no more download。")
 
 
 
@@ -178,7 +180,7 @@ spider.init_broswer()
 print('Creating file')
 spider.create_folder(spider.folder_path)
 print('Change the current file to it')
-os.chdir(spider.folder_path)  # 切换路径至上面创建的文件夹
+os.chdir(spider.folder_path)  
 
 # go through 20 pages
 for i in range(0, 20):
@@ -190,4 +192,4 @@ for i in range(0, 20):
 spider.close()
 
 # Note: code here is used to pick up urls and pictures which related to topics I'm interested in
-# the target website is an Adult website based in Taiwan: https://wuso.me/forum-jsav-1.html
+# the target website is an website based in Taiwan.
