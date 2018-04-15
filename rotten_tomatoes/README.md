@@ -1,5 +1,5 @@
 ## PURPOSE
-collect the comments of a movie called "A quiet place" from Rottentomatoes, and analise the data to obtain useful information.
+collect all the comments of a movie called "A quiet place" from Rottentomatoes, and analise the data to obtain useful information.
 
 ## Methods  
 1. analise the data 'Grades' given by audience   
