@@ -18,4 +18,4 @@ collect the comments of a movie called "A quiet place" from Rottentomatoes, and 
 3. To describe, process those data and build a Chart--- ‘matplotlib’(python3) are used. 
 
 ## Result
-In the result folder
+In the [result folder](https://github.com/Liwei-Master/My-code/tree/master/rotten_tomatoes/result)
